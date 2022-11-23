@@ -1,4 +1,5 @@
-using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.StaticFiles;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,9 +17,12 @@ app.UseWebSockets(webSocketOptions);
 // </snippet_UseWebSockets>
 
 app.UseDefaultFiles();
+var provider = new FileExtensionContentTypeProvider();
+// Add new mappings
+provider.Mappings[".data"] = "application/octet-stream";
 app.UseStaticFiles(new StaticFileOptions
 {
-    ServeUnknownFileTypes = true,
+    ContentTypeProvider = provider
 });
 
 app.MapControllers();
