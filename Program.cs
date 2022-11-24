@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.StaticFiles;
-
+using WebSocketsSample.Session;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-
+builder.Services.AddSingleton<ISessionStore, SessionStore>();
 var app = builder.Build();
 
 // <snippet_UseWebSockets>
