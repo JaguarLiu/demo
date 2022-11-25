@@ -2,7 +2,7 @@
 {
     public class Record
     {
-        public double[] Position { get; set; }
-        public double[] Rotation { get; set; }
+        public decimal[] Position { get; set; }
+        public decimal[] Rotation { get; set; }
     }
 }

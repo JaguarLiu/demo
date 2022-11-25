@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.StaticFiles;
 using WebSocketsSample.Session;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile(path: "appsettings.json", optional: false, reloadOnChange: true)
+    .Build();
 builder.Services.AddControllers();
 builder.Services.AddSingleton<ISessionStore, SessionStore>();
 var app = builder.Build();
@@ -26,5 +29,4 @@ app.UseStaticFiles(new StaticFileOptions
 });
 
 app.MapControllers();
-
 app.Run();

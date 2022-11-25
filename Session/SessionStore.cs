@@ -18,6 +18,7 @@ namespace WebSocketsSample.Session
         public void Add(string token, WebSocket webSocket)
         {
             _concurrentDictionary.TryAdd(token, webSocket);
+            _history.TryAdd(token, new Stack<Record>());
         }
         public WebSocket? Get(string token)
         {
@@ -35,7 +36,7 @@ namespace WebSocketsSample.Session
         public Record? Rollback(string token)
         {
             _history.TryGetValue(token, out var records);
-            return records?.Pop();
+            return records?.Count > 0 ? records?.Pop() : null;
         }
 
     }

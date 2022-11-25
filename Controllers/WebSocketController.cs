@@ -17,22 +17,13 @@ public class WebSocketController : ControllerBase
     }
 
     [HttpGet("/ws")]
-    public async Task Get([FromQuery]string token)
+    public async Task Get()
     {
-        if (token == null || token != "1234")
-        {
-            HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            return;
-        }
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {
-            var webSocket = _sessionStore.Get(token);
-            if (webSocket == null)
-            {
-                webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                _sessionStore.Add(token, webSocket);
-            }
-            await Echo(webSocket, token);
+            
+            var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+            await Echo(webSocket);
         }
         else
         {
@@ -41,23 +32,15 @@ public class WebSocketController : ControllerBase
     }
     // </snippet>
 
-    private async Task Echo(WebSocket webSocket,string token)
+    private async Task Echo(WebSocket webSocket)
     {
         var buffer = new byte[1024 * 4];
         
         var receiveResult = await webSocket.ReceiveAsync(
             new ArraySegment<byte>(buffer), CancellationToken.None);
-        var record = _sessionStore.Rollback(token);
-        var isRollback = false;
         while (!receiveResult.CloseStatus.HasValue)
         {
             
-            if (record !=null && !isRollback)
-            {
-                var content = JsonSerializer.Serialize(record);
-                buffer = Encoding.UTF8.GetBytes(content);
-                isRollback = true;
-            }
             await webSocket.SendAsync(
                 new ArraySegment<byte>(buffer, 0, receiveResult.Count),
                 receiveResult.MessageType,
@@ -65,13 +48,6 @@ public class WebSocketController : ControllerBase
                 CancellationToken.None);
             receiveResult = await webSocket.ReceiveAsync(
                 new ArraySegment<byte>(buffer), CancellationToken.None);
-            var aaa = Encoding.UTF8.GetString(buffer);
-            record = JsonSerializer.Deserialize<Record>(aaa);
-            if (record != null)
-            {
-                _sessionStore.Push(token, record);
-            }
-            
         }
 
         await webSocket.CloseAsync(
